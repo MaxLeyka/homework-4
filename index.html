@@ -5,58 +5,138 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Менеджер задач</h1>
+<div class="container">
+    <h1>Менеджер задач</h1>
 
-        <div class="engine-selector">
-            <label>Выберите движок запросов:</label>
-            <select id="engineSelector">
-                <option value="fetch">Fetch API</option>
-                <option value="xhr">XMLHttpRequest</option>
+    <div class="engine-selector">
+        <label>Движок:</label>
+        <select id="engineSelector">
+            <option value="fetch">Fetch API</option>
+            <option value="xhr">XMLHttpRequest</option>
+        </select>
+    </div>
+
+    <div class="actions-row">
+        <div class="filters-compact">
+            <input type="text" id="nameFilter" placeholder="Поиск по названию" class="compact-input">
+            <select id="completedFilter" class="compact-select">
+                <option value="">Все</option>
+                <option value="true">Выполненные</option>
+                <option value="false">Невыполненные</option>
             </select>
+            <select id="importantFilter" class="compact-select">
+                <option value="">Все</option>
+                <option value="true">Важные</option>
+                <option value="false">Неважные</option>
+            </select>
+            <button onclick="taskUI.loadTasks()" class="compact-btn">Поиск</button>
         </div>
 
-        <div class="section">
-            <h2>Создать задачу</h2>
-            <input type="text" placeholder="Название задачи">
-            <textarea id="taskInfo" placeholder="Описание задачи"></textarea>
-            <label>
-                <input type="checkbox" id="taskImportant"> Важная задача
-            </label>
-            <button>Создать задачу</button>
-        </div>
-
-        <div class="section">
-            <h2>Фильтры</h2>
-            <div class="filters">
-                <input type="text" placeholder="Поиск по названию">
-                <select id="completedFilter">
-                    <option value="">Все задачи</option>
-                    <option value="true">Активные</option>
-                    <option value="false">Выполненные</option>
-                </select>
-                <select id="importantFilter">
-                    <option value="">Любой приоритет</option>
-                    <option value="true">Важные</option>
-                    <option value="false">Неважные</option>
-                </select>
-            </div>
-            <button>Загрузить задачи</button>
-        </div>
-
-        <div class="section">
-            <h2>Получить задачу по ID</h2>
-            <input type="number" placeholder="ID задачи">
-            <button>Получить задачу</button>
-        </div>
-
-        <div class="section">
-            <h2>Список задач</h2>
-            <div id="tasksList"></div>
+        <div class="actions-compact">
+            <input type="number" id="taskId" placeholder="ID задачи" class="compact-input">
+            <button onclick="taskUI.getTaskById()" class="compact-btn">Найти</button>
+            <button onclick="taskUI.openCreateModal()" class="compact-btn primary">+ Создать</button>
         </div>
     </div>
+
+    <div class="section">
+        <h2>Список задач</h2>
+        <div id="tasksList"></div>
+    </div>
+</div>
+
+<div id="createTaskModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Создать новую задачу</h2>
+            <button class="close">&times;</button>
+        </div>
+
+        <form id="createTaskForm">
+            <div class="form-group">
+                <label for="modalTaskName">Название задачи *</label>
+                <input type="text" id="modalTaskName" placeholder="Введите название задачи" required>
+            </div>
+
+            <div class="form-group">
+                <label for="modalTaskInfo">Описание задачи</label>
+                <textarea id="modalTaskInfo" placeholder="Введите описание задачи" rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="modalTaskImportant">
+                    <label for="modalTaskImportant">Важная задача</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="modalTaskCompleted">
+                    <label for="modalTaskCompleted">Задача выполнена</label>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" onclick="taskUI.closeCreateModal()">Отмена</button>
+                <button type="submit" class="primary">Создать задачу</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="editTaskModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">Редактировать задачу</h2>
+            <button class="close">&times;</button>
+        </div>
+
+        <form id="editTaskForm">
+            <input type="hidden" id="editTaskId">
+
+            <div class="form-group">
+                <label for="editTaskName">Название задачи *</label>
+                <input type="text" id="editTaskName" placeholder="Введите название задачи" required>
+            </div>
+
+            <div class="form-group">
+                <label for="editTaskInfo">Описание задачи</label>
+                <textarea id="editTaskInfo" placeholder="Введите описание задачи" rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="editTaskImportant">
+                    <label for="editTaskImportant">Важная задача</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="checkbox-group">
+                    <input type="checkbox" id="editTaskCompleted">
+                    <label for="editTaskCompleted">Задача выполнена</label>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" onclick="taskUI.closeEditModal()">Отмена</button>
+                <button type="submit" class="primary">Сохранить изменения</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script src="js/utils/notifications.js"></script>
+<script src="js/clients/FetchClient.js"></script>
+<script src="js/clients/XhrClient.js"></script>
+<script src="js/services/ApiService.js"></script>
+<script src="js/ui/TaskUI.js"></script>
+<script src="main.js"></script>
 </body>
 </html>
